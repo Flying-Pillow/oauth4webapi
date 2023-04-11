@@ -2232,7 +2232,7 @@ function validateOptionalIssuer(expected: string, result: ParsedJWT) {
 }
 
 function validateIssuer(expected: string, result: ParsedJWT) {
-  if (expected.indexOf('{tenantid}') < 0 && result.claims.iss !== expected) {l
+  if (expected.indexOf('{tenantid}') < 0 && result.claims.iss !== expected) {
     throw new OPE('unexpected JWT "iss" (issuer) claim value')
   }
   return result
