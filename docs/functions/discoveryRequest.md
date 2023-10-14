@@ -2,7 +2,7 @@
 
 [💗 Help the project](https://github.com/sponsors/panva)
 
-▸ **discoveryRequest**(`issuerIdentifier`, `options?`): `Promise`<[`Response`]( https://developer.mozilla.org/en-US/docs/Web/API/Response )\>
+▸ **discoveryRequest**(`issuerIdentifier`, `options?`): [`Promise`]( https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise )<[`Response`]( https://developer.mozilla.org/en-US/docs/Web/API/Response )\>
 
 Performs an authorization server metadata discovery using one of two
 [transformation algorithms](../interfaces/DiscoveryRequestOptions.md#algorithm) applied to the
@@ -10,10 +10,6 @@ Performs an authorization server metadata discovery using one of two
 
 - `oidc` (default) as defined by OpenID Connect Discovery 1.0.
 - `oauth2` as defined by RFC 8414.
-
-**`see`** [RFC 8414 - OAuth 2.0 Authorization Server Metadata](https://www.rfc-editor.org/rfc/rfc8414.html#section-3)
-
-**`see`** [OpenID Connect Discovery 1.0](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig)
 
 #### Parameters
 
@@ -24,4 +20,9 @@ Performs an authorization server metadata discovery using one of two
 
 #### Returns
 
-`Promise`<[`Response`]( https://developer.mozilla.org/en-US/docs/Web/API/Response )\>
+[`Promise`]( https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise )<[`Response`]( https://developer.mozilla.org/en-US/docs/Web/API/Response )\>
+
+**`See`**
+
+ - [RFC 8414 - OAuth 2.0 Authorization Server Metadata](https://www.rfc-editor.org/rfc/rfc8414.html#section-3)
+ - [OpenID Connect Discovery 1.0](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig)

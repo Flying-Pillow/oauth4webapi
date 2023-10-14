@@ -12,10 +12,13 @@ export const algs = <lib.JWSAlgorithm[]>[
   'ES384',
 ]
 export const fails = <lib.JWSAlgorithm[]>[]
-;(!env.isDeno ? algs : fails).push('ES512')
-;(env.isDeno || env.isNode || env.isElectron || env.isBun ? algs : fails).push('EdDSA')
+;(env.isDeno ? fails : algs).push('ES512')
+;(env.isBrowser && !(env.isWebKit && env.isWebKitAbove17) ? fails : algs).push('EdDSA')
 
-export const keys = algs.reduce((acc, alg) => {
-  acc[alg] = lib.generateKeyPair(alg)
-  return acc
-}, <Record<lib.JWSAlgorithm, Promise<CryptoKeyPair>>>{})
+export const keys = algs.reduce(
+  (acc, alg) => {
+    acc[alg] = lib.generateKeyPair(alg)
+    return acc
+  },
+  <Record<lib.JWSAlgorithm, Promise<CryptoKeyPair>>>{},
+)

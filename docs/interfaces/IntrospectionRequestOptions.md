@@ -16,7 +16,7 @@
 
 ### additionalParameters
 
-• `Optional` **additionalParameters**: [`URLSearchParams`]( https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams )
+• `Optional` **additionalParameters**: [`Record`]( https://www.typescriptlang.org/docs/handbook/utility-types.html#recordkeys-type )<`string`, `string`\> \| [`URLSearchParams`]( https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams ) \| `string`[][]
 
 Any additional parameters to send. This cannot override existing parameter values.
 
@@ -62,7 +62,9 @@ ___
 An AbortSignal instance, or a factory returning one, to abort the HTTP Request(s) triggered by
 this function's invocation.
 
-**`example`** A 5000ms timeout AbortSignal for every request
+**`Example`**
+
+A 5000ms timeout AbortSignal for every request
 
 ```js
 const signal = () => AbortSignal.timeout(5_000) // Note: AbortSignal.timeout may not yet be available in all runtimes.

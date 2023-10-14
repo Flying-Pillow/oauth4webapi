@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.3.0](https://github.com/panva/oauth4webapi/compare/v2.2.4...v2.3.0) (2023-04-26)
+
+
+### Features
+
+* allow Record<string, string> and string[][] as parameter arguments ([021b85f](https://github.com/panva/oauth4webapi/commit/021b85fe27346089aa2380caf1073f2b1310de9b))
+
+## [2.2.4](https://github.com/panva/oauth4webapi/compare/v2.2.3...v2.2.4) (2023-04-24)
+
+
+### Refactor
+
+* brand URLSearchParams instead of extending URLSearchParams ([8e62c8a](https://github.com/panva/oauth4webapi/commit/8e62c8ab70d059e26975bbf20f986c3f6ebfaea6))
+
+## [2.2.3](https://github.com/panva/oauth4webapi/compare/v2.2.2...v2.2.3) (2023-04-21)
+
+## [2.2.2](https://github.com/panva/oauth4webapi/compare/v2.2.1...v2.2.2) (2023-04-21)
+
+
+### Refactor
+
+* **types:** enforce flat interfaces ([c958d61](https://github.com/panva/oauth4webapi/commit/c958d61885f67078998d7f4c214627d2323ba206))
+
+## [2.2.1](https://github.com/panva/oauth4webapi/compare/v2.2.0...v2.2.1) (2023-04-13)
+
+
+### Fixes
+
+* return undefined from getValidatedIdTokenClaims as documented ([678b12d](https://github.com/panva/oauth4webapi/commit/678b12d4e113b4b5d599590a9b104330bf82ee56))
+
 ## [2.2.0](https://github.com/panva/oauth4webapi/compare/v2.1.0...v2.2.0) (2023-03-10)
 
 

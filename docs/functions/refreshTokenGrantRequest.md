@@ -2,16 +2,10 @@
 
 [💗 Help the project](https://github.com/sponsors/panva)
 
-▸ **refreshTokenGrantRequest**(`as`, `client`, `refreshToken`, `options?`): `Promise`<[`Response`]( https://developer.mozilla.org/en-US/docs/Web/API/Response )\>
+▸ **refreshTokenGrantRequest**(`as`, `client`, `refreshToken`, `options?`): [`Promise`]( https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise )<[`Response`]( https://developer.mozilla.org/en-US/docs/Web/API/Response )\>
 
 Performs a Refresh Token Grant request at the
 [`as.token_endpoint`](../interfaces/AuthorizationServer.md#token_endpoint).
-
-**`see`** [RFC 6749 - The OAuth 2.0 Authorization Framework](https://www.rfc-editor.org/rfc/rfc6749.html#section-6)
-
-**`see`** [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html#RefreshTokens)
-
-**`see`** [draft-ietf-oauth-dpop-11 - OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)](https://www.ietf.org/archive/id/draft-ietf-oauth-dpop-11.html#name-dpop-access-token-request)
 
 #### Parameters
 
@@ -24,4 +18,10 @@ Performs a Refresh Token Grant request at the
 
 #### Returns
 
-`Promise`<[`Response`]( https://developer.mozilla.org/en-US/docs/Web/API/Response )\>
+[`Promise`]( https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise )<[`Response`]( https://developer.mozilla.org/en-US/docs/Web/API/Response )\>
+
+**`See`**
+
+ - [RFC 6749 - The OAuth 2.0 Authorization Framework](https://www.rfc-editor.org/rfc/rfc6749.html#section-6)
+ - [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html#RefreshTokens)
+ - [RFC 9449 - OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)](https://www.rfc-editor.org/rfc/rfc9449.html#name-dpop-access-token-request)

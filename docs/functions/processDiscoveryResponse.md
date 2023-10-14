@@ -2,14 +2,10 @@
 
 [💗 Help the project](https://github.com/sponsors/panva)
 
-▸ **processDiscoveryResponse**(`expectedIssuerIdentifier`, `response`): `Promise`<[`AuthorizationServer`](../interfaces/AuthorizationServer.md)\>
+▸ **processDiscoveryResponse**(`expectedIssuerIdentifier`, `response`): [`Promise`]( https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise )<[`AuthorizationServer`](../interfaces/AuthorizationServer.md)\>
 
 Validates Response instance to be one coming from the authorization server's well-known discovery
 endpoint.
-
-**`see`** [RFC 8414 - OAuth 2.0 Authorization Server Metadata](https://www.rfc-editor.org/rfc/rfc8414.html#section-3)
-
-**`see`** [OpenID Connect Discovery 1.0](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig)
 
 #### Parameters
 
@@ -20,6 +16,11 @@ endpoint.
 
 #### Returns
 
-`Promise`<[`AuthorizationServer`](../interfaces/AuthorizationServer.md)\>
+[`Promise`]( https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise )<[`AuthorizationServer`](../interfaces/AuthorizationServer.md)\>
 
 Resolves with the discovered Authorization Server Metadata.
+
+**`See`**
+
+ - [RFC 8414 - OAuth 2.0 Authorization Server Metadata](https://www.rfc-editor.org/rfc/rfc8414.html#section-3)
+ - [OpenID Connect Discovery 1.0](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig)

@@ -2,11 +2,9 @@
 
 [💗 Help the project](https://github.com/sponsors/panva)
 
-▸ **validateJwtAuthResponse**(`as`, `client`, `parameters`, `expectedState?`, `options?`): `Promise`<`CallbackParameters` \| [`OAuth2Error`](../interfaces/OAuth2Error.md)\>
+▸ **validateJwtAuthResponse**(`as`, `client`, `parameters`, `expectedState?`, `options?`): [`Promise`]( https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise )<[`URLSearchParams`]( https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams ) \| [`OAuth2Error`](../interfaces/OAuth2Error.md)\>
 
 Same as [validateAuthResponse](validateAuthResponse.md) but for signed JARM responses.
-
-**`see`** [JWT Secured Authorization Response Mode for OAuth 2.0 (JARM)](https://openid.net/specs/openid-financial-api-jarm.html)
 
 #### Parameters
 
@@ -20,6 +18,10 @@ Same as [validateAuthResponse](validateAuthResponse.md) but for signed JARM resp
 
 #### Returns
 
-`Promise`<`CallbackParameters` \| [`OAuth2Error`](../interfaces/OAuth2Error.md)\>
+[`Promise`]( https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise )<[`URLSearchParams`]( https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams ) \| [`OAuth2Error`](../interfaces/OAuth2Error.md)\>
 
 Validated Authorization Response parameters or Authorization Error Response.
+
+**`See`**
+
+[JWT Secured Authorization Response Mode for OAuth 2.0 (JARM)](https://openid.net/specs/openid-financial-api-jarm.html)

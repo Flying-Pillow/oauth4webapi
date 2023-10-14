@@ -2,7 +2,7 @@ let USER_AGENT: string
 // @ts-ignore
 if (typeof navigator === 'undefined' || !navigator.userAgent?.startsWith?.('Mozilla/5.0 ')) {
   const NAME = 'oauth4webapi'
-  const VERSION = 'v2.2.0'
+  const VERSION = 'v2.3.0'
   USER_AGENT = `${NAME}/${VERSION}`
 }
 
@@ -547,6 +547,7 @@ export interface Client {
    * ```
    */
   [clockTolerance]?: number
+
   [metadata: string]: JsonValue | undefined
 }
 
@@ -1254,15 +1255,12 @@ async function jwt(
 export async function issueRequestObject(
   as: AuthorizationServer,
   client: Client,
-  parameters: URLSearchParams,
+  parameters: URLSearchParams | Record<string, string> | string[][],
   privateKey: CryptoKey | PrivateKey,
 ) {
   assertAs(as)
   assertClient(client)
 
-  if (!(parameters instanceof URLSearchParams)) {
-    throw new TypeError('"parameters" must be an instance of URLSearchParams')
-  }
   parameters = new URLSearchParams(parameters)
 
   const { key, kid } = getKeyAndKid(privateKey)
@@ -1391,20 +1389,16 @@ async function publicJwk(key: CryptoKey) {
  * @param parameters Authorization Request parameters.
  *
  * @see [RFC 9126 - OAuth 2.0 Pushed Authorization Requests](https://www.rfc-editor.org/rfc/rfc9126.html#name-pushed-authorization-reques)
- * @see [draft-ietf-oauth-dpop-11 - OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)](https://www.ietf.org/archive/id/draft-ietf-oauth-dpop-11.html#name-dpop-with-pushed-authorizat)
+ * @see [RFC 9449 - OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)](https://www.rfc-editor.org/rfc/rfc9449.html#name-dpop-with-pushed-authorizat)
  */
 export async function pushedAuthorizationRequest(
   as: AuthorizationServer,
   client: Client,
-  parameters: URLSearchParams,
+  parameters: URLSearchParams | Record<string, string> | string[][],
   options?: PushedAuthorizationRequestOptions,
 ): Promise<Response> {
   assertAs(as)
   assertClient(client)
-
-  if (!(parameters instanceof URLSearchParams)) {
-    throw new TypeError('"parameters" must be an instance of URLSearchParams')
-  }
 
   if (typeof as.pushed_authorization_request_endpoint !== 'string') {
     throw new TypeError('"as.pushed_authorization_request_endpoint" must be a string')
@@ -1453,20 +1447,22 @@ export function isOAuth2Error(input?: ReturnTypes): input is OAuth2Error {
   return value.error !== undefined
 }
 
+export interface WWWAuthenticateChallengeParameters {
+  readonly realm?: string
+  readonly error?: string
+  readonly error_description?: string
+  readonly error_uri?: string
+  readonly algs?: string
+  readonly scope?: string
+
+  /** NOTE: because the parameter names are case insensitive they are always returned lowercased */
+  readonly [parameter: string]: string | undefined
+}
+
 export interface WWWAuthenticateChallenge {
   /** NOTE: because the value is case insensitive it is always returned lowercased */
   readonly scheme: string
-  readonly parameters: {
-    readonly realm?: string
-    readonly error?: string
-    readonly error_description?: string
-    readonly error_uri?: string
-    readonly algs?: string
-    readonly scope?: string
-
-    /** NOTE: because the parameter names are case insensitive they are always returned lowercased */
-    readonly [parameter: string]: string | undefined
-  }
+  readonly parameters: WWWAuthenticateChallengeParameters
 }
 
 function unquote(value: string) {
@@ -1558,6 +1554,7 @@ export function parseWwwAuthenticateChallenges(
  * @returns Resolves with an object representing the parsed successful response, or an object
  *   representing an OAuth 2.0 protocol style error. Use {@link isOAuth2Error} to determine if an
  *   OAuth 2.0 error was returned.
+ *
  * @see [RFC 9126 - OAuth 2.0 Pushed Authorization Requests](https://www.rfc-editor.org/rfc/rfc9126.html#name-pushed-authorization-reques)
  */
 export async function processPushedAuthorizationResponse(
@@ -1630,7 +1627,7 @@ export interface ProtectedResourceRequestOptions
  * @param body Request body compatible with the Fetch API and the request's method.
  *
  * @see [RFC 6750 - The OAuth 2.0 Authorization Framework: Bearer Token Usage](https://www.rfc-editor.org/rfc/rfc6750.html#section-2.1)
- * @see [draft-ietf-oauth-dpop-11 - OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)](https://www.ietf.org/archive/id/draft-ietf-oauth-dpop-11.html#name-protected-resource-access)
+ * @see [RFC 9449 - OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)](https://www.rfc-editor.org/rfc/rfc9449.html#name-protected-resource-access)
  */
 export async function protectedResourceRequest(
   accessToken: string,
@@ -1686,7 +1683,7 @@ export interface UserInfoRequestOptions extends HttpRequestOptions, DPoPRequestO
  * @param accessToken Access Token value.
  *
  * @see [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo)
- * @see [draft-ietf-oauth-dpop-11 - OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)](https://www.ietf.org/archive/id/draft-ietf-oauth-dpop-11.html#name-protected-resource-access)
+ * @see [RFC 9449 - OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)](https://www.rfc-editor.org/rfc/rfc9449.html#name-protected-resource-access)
  */
 export async function userInfoRequest(
   as: AuthorizationServer,
@@ -1717,6 +1714,17 @@ export async function userInfoRequest(
   })
 }
 
+export interface UserInfoAddress {
+  readonly formatted?: string
+  readonly street_address?: string
+  readonly locality?: string
+  readonly region?: string
+  readonly postal_code?: string
+  readonly country?: string
+
+  readonly [claim: string]: JsonValue | undefined
+}
+
 export interface UserInfoResponse {
   readonly sub: string
   readonly name?: string
@@ -1736,14 +1744,7 @@ export interface UserInfoResponse {
   readonly locale?: string
   readonly phone_number?: string
   readonly updated_at?: number
-  readonly address?: {
-    readonly formatted?: string
-    readonly street_address?: string
-    readonly locality?: string
-    readonly region?: string
-    readonly postal_code?: string
-    readonly country?: string
-  }
+  readonly address?: UserInfoAddress
 
   readonly [claim: string]: JsonValue | undefined
 }
@@ -1890,6 +1891,7 @@ function getContentType(response: Response) {
  * @returns Resolves with an object representing the parsed successful response, or an object
  *   representing an OAuth 2.0 protocol style error. Use {@link isOAuth2Error} to determine if an
  *   OAuth 2.0 error was returned.
+ *
  * @see [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html#UserInfo)
  */
 export async function processUserInfoResponse(
@@ -1989,7 +1991,7 @@ export interface TokenEndpointRequestOptions
     AuthenticatedRequestOptions,
     DPoPRequestOptions {
   /** Any additional parameters to send. This cannot override existing parameter values. */
-  additionalParameters?: URLSearchParams
+  additionalParameters?: URLSearchParams | Record<string, string> | string[][]
 }
 
 async function tokenEndpointRequest(
@@ -2026,7 +2028,7 @@ async function tokenEndpointRequest(
  *
  * @see [RFC 6749 - The OAuth 2.0 Authorization Framework](https://www.rfc-editor.org/rfc/rfc6749.html#section-6)
  * @see [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html#RefreshTokens)
- * @see [draft-ietf-oauth-dpop-11 - OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)](https://www.ietf.org/archive/id/draft-ietf-oauth-dpop-11.html#name-dpop-access-token-request)
+ * @see [RFC 9449 - OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)](https://www.rfc-editor.org/rfc/rfc9449.html#name-dpop-access-token-request)
  */
 export async function refreshTokenGrantRequest(
   as: AuthorizationServer,
@@ -2070,13 +2072,18 @@ export function getValidatedIdTokenClaims(ref: TokenEndpointResponse): IDToken |
 export function getValidatedIdTokenClaims(
   ref: OpenIDTokenEndpointResponse | TokenEndpointResponse,
 ): IDToken | undefined {
-  if (!idTokenClaims.has(ref)) {
+  if (!ref.id_token) {
+    return undefined
+  }
+
+  const claims = idTokenClaims.get(ref)
+  if (!claims) {
     throw new TypeError(
       '"ref" was already garbage collected or did not resolve from the proper sources',
     )
   }
 
-  return idTokenClaims.get(ref)
+  return claims
 }
 
 async function processGenericAccessTokenResponse(
@@ -2194,6 +2201,7 @@ async function processGenericAccessTokenResponse(
  * @returns Resolves with an object representing the parsed successful response, or an object
  *   representing an OAuth 2.0 protocol style error. Use {@link isOAuth2Error} to determine if an
  *   OAuth 2.0 error was returned.
+ *
  * @see [RFC 6749 - The OAuth 2.0 Authorization Framework](https://www.rfc-editor.org/rfc/rfc6749.html#section-6)
  * @see [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html#RefreshTokens)
  */
@@ -2238,6 +2246,12 @@ function validateIssuer(expected: string, result: ParsedJWT) {
   return result
 }
 
+const branded = new WeakSet<URLSearchParams>()
+function brand(searchParams: URLSearchParams) {
+  branded.add(searchParams)
+  return searchParams
+}
+
 /**
  * Performs an Authorization Code grant request at the
  * {@link AuthorizationServer.token_endpoint `as.token_endpoint`}.
@@ -2252,12 +2266,12 @@ function validateIssuer(expected: string, result: ParsedJWT) {
  * @see [RFC 6749 - The OAuth 2.0 Authorization Framework](https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1)
  * @see [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth)
  * @see [RFC 7636 - Proof Key for Code Exchange by OAuth Public Clients (PKCE)](https://www.rfc-editor.org/rfc/rfc7636.html#section-4)
- * @see [draft-ietf-oauth-dpop-11 - OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)](https://www.ietf.org/archive/id/draft-ietf-oauth-dpop-11.html#name-dpop-access-token-request)
+ * @see [RFC 9449 - OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)](https://www.rfc-editor.org/rfc/rfc9449.html#name-dpop-access-token-request)
  */
 export async function authorizationCodeGrantRequest(
   as: AuthorizationServer,
   client: Client,
-  callbackParameters: CallbackParameters,
+  callbackParameters: URLSearchParams,
   redirectUri: string,
   codeVerifier: string,
   options?: TokenEndpointRequestOptions,
@@ -2265,9 +2279,9 @@ export async function authorizationCodeGrantRequest(
   assertAs(as)
   assertClient(client)
 
-  if (!(callbackParameters instanceof CallbackParameters)) {
+  if (!branded.has(callbackParameters)) {
     throw new TypeError(
-      '"callbackParameters" must be an instance of CallbackParameters obtained from "validateAuthResponse()", or "validateJwtAuthResponse()',
+      '"callbackParameters" must be an instance of URLSearchParams obtained from "validateAuthResponse()", or "validateJwtAuthResponse()',
     )
   }
 
@@ -2422,6 +2436,7 @@ export const skipAuthTimeCheck = Symbol()
  * @returns Resolves with an object representing the parsed successful response, or an object
  *   representing an OAuth 2.0 protocol style error. Use {@link isOAuth2Error} to determine if an
  *   OAuth 2.0 error was returned.
+ *
  * @see [RFC 6749 - The OAuth 2.0 Authorization Framework](https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1)
  * @see [OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth)
  */
@@ -2496,6 +2511,7 @@ export async function processAuthorizationCodeOpenIDResponse(
  * @returns Resolves with an object representing the parsed successful response, or an object
  *   representing an OAuth 2.0 protocol style error. Use {@link isOAuth2Error} to determine if an
  *   OAuth 2.0 error was returned.
+ *
  * @see [RFC 6749 - The OAuth 2.0 Authorization Framework](https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1)
  */
 export async function processAuthorizationCodeOAuth2Response(
@@ -2543,12 +2559,12 @@ export interface ClientCredentialsGrantRequestOptions
  * @param client Client Metadata.
  *
  * @see [RFC 6749 - The OAuth 2.0 Authorization Framework](https://www.rfc-editor.org/rfc/rfc6749.html#section-4.4)
- * @see [draft-ietf-oauth-dpop-11 - OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)](https://www.ietf.org/archive/id/draft-ietf-oauth-dpop-11.html#name-dpop-access-token-request)
+ * @see [RFC 9449 - OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)](https://www.rfc-editor.org/rfc/rfc9449.html#name-dpop-access-token-request)
  */
 export async function clientCredentialsGrantRequest(
   as: AuthorizationServer,
   client: Client,
-  parameters: URLSearchParams,
+  parameters: URLSearchParams | Record<string, string> | string[][],
   options?: ClientCredentialsGrantRequestOptions,
 ): Promise<Response> {
   assertAs(as)
@@ -2574,6 +2590,7 @@ export async function clientCredentialsGrantRequest(
  * @returns Resolves with an object representing the parsed successful response, or an object
  *   representing an OAuth 2.0 protocol style error. Use {@link isOAuth2Error} to determine if an
  *   OAuth 2.0 error was returned.
+ *
  * @see [RFC 6749 - The OAuth 2.0 Authorization Framework](https://www.rfc-editor.org/rfc/rfc6749.html#section-4.4)
  */
 export async function processClientCredentialsResponse(
@@ -2592,7 +2609,7 @@ export async function processClientCredentialsResponse(
 
 export interface RevocationRequestOptions extends HttpRequestOptions, AuthenticatedRequestOptions {
   /** Any additional parameters to send. This cannot override existing parameter values. */
-  additionalParameters?: URLSearchParams
+  additionalParameters?: URLSearchParams | Record<string, string> | string[][]
 }
 
 /**
@@ -2603,6 +2620,7 @@ export interface RevocationRequestOptions extends HttpRequestOptions, Authentica
  * @param client Client Metadata.
  * @param token Token to revoke. You can provide the `token_type_hint` parameter via
  *   {@link RevocationRequestOptions.additionalParameters options}.
+ *
  * @see [RFC 7009 - OAuth 2.0 Token Revocation](https://www.rfc-editor.org/rfc/rfc7009.html#section-2)
  */
 export async function revocationRequest(
@@ -2641,6 +2659,7 @@ export async function revocationRequest(
  *
  * @returns Resolves with `undefined` when the request was successful, or an object representing an
  *   OAuth 2.0 protocol style error.
+ *
  * @see [RFC 7009 - OAuth 2.0 Token Revocation](https://www.rfc-editor.org/rfc/rfc7009.html#section-2)
  */
 export async function processRevocationResponse(
@@ -2665,7 +2684,7 @@ export interface IntrospectionRequestOptions
   extends HttpRequestOptions,
     AuthenticatedRequestOptions {
   /** Any additional parameters to send. This cannot override existing parameter values. */
-  additionalParameters?: URLSearchParams
+  additionalParameters?: URLSearchParams | Record<string, string> | string[][]
   /**
    * Request a JWT Response from the
    * {@link AuthorizationServer.introspection_endpoint `as.introspection_endpoint`}. Default is
@@ -2692,6 +2711,7 @@ function assertReadableResponse(response: Response) {
  * @param client Client Metadata.
  * @param token Token to introspect. You can provide the `token_type_hint` parameter via
  *   {@link IntrospectionRequestOptions.additionalParameters options}.
+ *
  * @see [RFC 7662 - OAuth 2.0 Token Introspection](https://www.rfc-editor.org/rfc/rfc7662.html#section-2)
  * @see [draft-ietf-oauth-jwt-introspection-response-12 - JWT Response for OAuth Token Introspection](https://www.ietf.org/archive/id/draft-ietf-oauth-jwt-introspection-response-12.html#section-4)
  */
@@ -2726,6 +2746,13 @@ export async function introspectionRequest(
   return authenticatedRequest(as, client, 'POST', url, body, headers, options)
 }
 
+export interface IntrospectionConfirmationClaims {
+  readonly 'x5t#S256'?: string
+  readonly jkt?: string
+
+  readonly [claim: string]: JsonValue | undefined
+}
+
 export interface IntrospectionResponse {
   readonly active: boolean
   readonly client_id?: string
@@ -2740,12 +2767,7 @@ export interface IntrospectionResponse {
   readonly sub?: string
   readonly nbf?: number
   readonly token_type?: string
-  readonly cnf?: {
-    readonly 'x5t#S256'?: string
-    readonly jkt?: string
-
-    readonly [claim: string]: JsonValue | undefined
-  }
+  readonly cnf?: IntrospectionConfirmationClaims
 
   readonly [claim: string]: JsonValue | undefined
 }
@@ -2761,6 +2783,7 @@ export interface IntrospectionResponse {
  * @returns Resolves with an object representing the parsed successful response, or an object
  *   representing an OAuth 2.0 protocol style error. Use {@link isOAuth2Error} to determine if an
  *   OAuth 2.0 error was returned.
+ *
  * @see [RFC 7662 - OAuth 2.0 Token Introspection](https://www.rfc-editor.org/rfc/rfc7662.html#section-2)
  * @see [draft-ietf-oauth-jwt-introspection-response-12 - JWT Response for OAuth Token Introspection](https://www.ietf.org/archive/id/draft-ietf-oauth-jwt-introspection-response-12.html#section-5)
  */
@@ -3084,7 +3107,7 @@ export async function validateJwtAuthResponse(
   parameters: URLSearchParams | URL,
   expectedState?: string | typeof expectNoState | typeof skipStateCheck,
   options?: HttpRequestOptions,
-): Promise<CallbackParameters | OAuth2Error> {
+): Promise<URLSearchParams | OAuth2Error> {
   assertAs(as)
   assertClient(client)
 
@@ -3189,8 +3212,6 @@ export const skipStateCheck = Symbol()
  */
 export const expectNoState = Symbol()
 
-class CallbackParameters extends URLSearchParams {}
-
 /**
  * Validates an OAuth 2.0 Authorization Response or Authorization Error Response message returned
  * from the authorization server's
@@ -3212,7 +3233,7 @@ export function validateAuthResponse(
   client: Client,
   parameters: URLSearchParams | URL,
   expectedState?: string | typeof expectNoState | typeof skipStateCheck,
-): CallbackParameters | OAuth2Error {
+): URLSearchParams | OAuth2Error {
   assertAs(as)
   assertClient(client)
 
@@ -3277,7 +3298,7 @@ export function validateAuthResponse(
     throw new UnsupportedOperationError('implicit and hybrid flows are not supported')
   }
 
-  return new CallbackParameters(parameters)
+  return brand(new URLSearchParams(parameters))
 }
 
 type ReturnTypes =
@@ -3347,15 +3368,11 @@ export interface DeviceAuthorizationRequestOptions
 export async function deviceAuthorizationRequest(
   as: AuthorizationServer,
   client: Client,
-  parameters: URLSearchParams,
+  parameters: URLSearchParams | Record<string, string> | string[][],
   options?: DeviceAuthorizationRequestOptions,
 ): Promise<Response> {
   assertAs(as)
   assertClient(client)
-
-  if (!(parameters instanceof URLSearchParams)) {
-    throw new TypeError('"parameters" must be an instance of URLSearchParams')
-  }
 
   if (typeof as.device_authorization_endpoint !== 'string') {
     throw new TypeError('"as.device_authorization_endpoint" must be a string')
@@ -3394,6 +3411,7 @@ export interface DeviceAuthorizationResponse {
  * @returns Resolves with an object representing the parsed successful response, or an object
  *   representing an OAuth 2.0 protocol style error. Use {@link isOAuth2Error} to determine if an
  *   OAuth 2.0 error was returned.
+ *
  * @see [RFC 8628 - OAuth 2.0 Device Authorization Grant](https://www.rfc-editor.org/rfc/rfc8628.html#section-3.1)
  */
 export async function processDeviceAuthorizationResponse(
@@ -3467,7 +3485,7 @@ export async function processDeviceAuthorizationResponse(
  * @param deviceCode Device Code.
  *
  * @see [RFC 8628 - OAuth 2.0 Device Authorization Grant](https://www.rfc-editor.org/rfc/rfc8628.html#section-3.4)
- * @see [draft-ietf-oauth-dpop-11 - OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)](https://www.ietf.org/archive/id/draft-ietf-oauth-dpop-11.html#name-dpop-access-token-request)
+ * @see [RFC 9449 - OAuth 2.0 Demonstrating Proof-of-Possession at the Application Layer (DPoP)](https://www.rfc-editor.org/rfc/rfc9449.html#name-dpop-access-token-request)
  */
 export async function deviceCodeGrantRequest(
   as: AuthorizationServer,
@@ -3504,6 +3522,7 @@ export async function deviceCodeGrantRequest(
  * @returns Resolves with an object representing the parsed successful response, or an object
  *   representing an OAuth 2.0 protocol style error. Use {@link isOAuth2Error} to determine if an
  *   OAuth 2.0 error was returned.
+ *
  * @see [RFC 8628 - OAuth 2.0 Device Authorization Grant](https://www.rfc-editor.org/rfc/rfc8628.html#section-3.4)
  */
 export async function processDeviceCodeResponse(
