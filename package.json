@@ -1,5 +1,5 @@
 {
-  "name": "@flying-pillow/oauth4webapi",
+  "name": "oauth4webapi",
   "version": "2.3.0",
   "description": "OAuth 2 / OpenID Connect for JavaScript Runtimes. Minor change to allow common tenant from microsoft Azure AD",
   "keywords": [
