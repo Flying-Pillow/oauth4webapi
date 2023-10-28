@@ -60,7 +60,8 @@
     "tap:electron": "./tap/.electron.sh",
     "tap:node": "bash -c './tap/.node.sh'",
     "tap:workerd": "./tap/.workerd.sh",
-    "test": "bash -c 'source .node_flags.sh && ava'"
+    "test": "bash -c 'source .node_flags.sh && ava'",
+    "postinstall": "npm run build"
   },
   "devDependencies": {
     "@esbuild-kit/esm-loader": "^2.6.5",
