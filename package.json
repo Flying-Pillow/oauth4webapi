@@ -61,7 +61,7 @@
     "tap:node": "bash -c './tap/.node.sh'",
     "tap:workerd": "./tap/.workerd.sh",
     "test": "bash -c 'source .node_flags.sh && ava'",
-    "postinstall": "npm i && npm run build"
+    "postinstall": "npm install --ignore-scripts && npm run build"
   },
   "devDependencies": {
     "@esbuild-kit/esm-loader": "^2.6.5",
